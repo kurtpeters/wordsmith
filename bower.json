@@ -1,7 +1,7 @@
 {
-  "name": "poet",
+  "name": "wordsmith",
   "version": "0.0.0",
-  "homepage": "https://github.com/kurtpeters/poet",
+  "homepage": "https://github.com/kurtpeters/wordsmith",
   "license": "MIT",
   "ignore": [
     "**/.*",

@@ -1,5 +1,5 @@
 {
-  "name": "poet",
+  "name": "wordsmith",
   "version": "0.0.0",
   "description": "",
   "main": "index.js",
@@ -8,14 +8,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/kurtpeters/poet.git"
+    "url": "https://github.com/kurtpeters/wordsmith"
   },
   "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/kurtpeters/poet/issues"
+    "url": "https://github.com/kurtpeters/wordsmith/issues"
   },
-  "homepage": "https://github.com/kurtpeters/poet",
+  "homepage": "https://github.com/kurtpeters/wordsmith",
   "devDependencies": {
     "bower": "^1.3.12"
   }
