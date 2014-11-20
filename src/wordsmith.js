@@ -2,7 +2,7 @@
 
     'use strict';
 
-    var wordsmith, ws, FILTERS = {}, DEFAULTS = {
+    var wordsmith, ws, DEFAULTS = {
         "deafultText": 'Missing phrase: ',
         "filter": '|',
         "locale": 'en',
@@ -17,6 +17,7 @@
 
     function Wordsmith() {
         this.attributes = {};
+        this.filters = {};
         this.phrases = {};
         this.sequence = [];
     }
@@ -102,7 +103,6 @@
     };
 
     wordsmith = new Wordsmith();
-    wordsmith.filters = {};
 
     root.wordsmith = root.ws = ws = function(phrase, expressions) {
         phrase = wordsmith.parse(phrase);

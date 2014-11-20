@@ -149,3 +149,23 @@ describe('filter:pluralization', function() {
         ws.replace();
     });
 });
+
+describe('filter:nested', function() {
+
+    'use strict';
+
+    beforeEach(function() {
+        ws.extend({
+            "book": "goosebumps",
+            "gerd": "oh mer gerd ws(book)!"
+        });
+    });
+
+    it('should perform nested phrase lookups', function() {
+        expect(ws('gerd | nested')).to.equal('oh mer gerd goosebumps!');
+    });
+
+    afterEach(function() {
+        ws.replace();
+    });
+});

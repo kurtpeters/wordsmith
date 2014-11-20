@@ -2,7 +2,7 @@
 
     'use strict';
 
-    var wordsmith, ws, FILTERS = {}, DEFAULTS = {
+    var wordsmith, ws, DEFAULTS = {
         "deafultText": 'Missing phrase: ',
         "filter": '|',
         "locale": 'en',
@@ -17,6 +17,7 @@
 
     function Wordsmith() {
         this.attributes = {};
+        this.filters = {};
         this.phrases = {};
         this.sequence = [];
     }
@@ -102,7 +103,6 @@
     };
 
     wordsmith = new Wordsmith();
-    wordsmith.filters = {};
 
     root.wordsmith = root.ws = ws = function(phrase, expressions) {
         phrase = wordsmith.parse(phrase);
@@ -184,6 +184,25 @@
         var regExp = ws.get('expression');
         return phrase.replace(regExp, function(expression, property) {
             return expressions[property] || '';
+        });
+    });
+
+})(this);
+
+(function(root) {
+
+    'use strict';
+
+    var ws = root.wordsmith;
+
+    ws.set('nested', /ws\((.*?)\)/g);
+
+    ws.registerFilter('nested', function(phrase, expressions) {
+
+        var regExp = ws.get('nested');
+
+        return phrase.replace(regExp, function(expression, args) {
+            return ws(args, expressions);
         });
     });
 
