@@ -5,6 +5,7 @@
     var wordsmith, ws, DEFAULTS = {
         "deafultText": 'Missing phrase: ',
         "filter": '|',
+        "filters": [],
         "locale": 'en',
         "notation": '.',
         "throwError": true
@@ -15,6 +16,19 @@
         return string.replace(regExp, '');
     }
 
+    function reformat(property, value) {
+
+        var properties = {};
+
+        if (property && property.constructor === String) {
+            properties[property] = value;
+        } else {
+            properties = property || properties;
+        }
+
+        return properties;
+    }
+
     function Wordsmith() {
         this.attributes = {};
         this.filters = {};
@@ -22,30 +36,39 @@
         this.sequence = [];
     }
 
-    Wordsmith.prototype.set = function(attributes) {
+    Wordsmith.prototype.extend = function(phrases, prefix) {
 
-        for (var property in attributes) {
-            this.attributes[property] = attributes[property];
+        var item, phrase;
+
+        for (item in phrases) {
+
+            phrase = phrases[item];
+
+            if (prefix !== void 0) {
+                item = prefix + this.attributes.notation + item;
+            }
+
+            if (phrase instanceof Object) {
+                this.extend(phrase, item);
+                continue;
+            }
+
+            this.phrases[item] = phrase;
         }
 
         return this;
     };
 
-    Wordsmith.prototype.restore = function() {
-        this.constructor.call(this);
-        return this;
-    };
+    Wordsmith.prototype.parse = function(phrase, definedFilters) {
 
-    Wordsmith.prototype.parse = function(phrase) {
-
-        var filters = phrase.split(this.attributes.filter),
-            filter = filters.length - 1;
+        var filters = phrase.split(this.attributes.filter);
 
         phrase = trim(filters[0]);
-        filters = (this.attributes.filters || []).concat(filters.slice(1));
+        filters = this.attributes.filters.concat(filters.slice(1), definedFilters || []);
+        definedFilters = filters.length;
 
-        while (filter--) {
-            this.sequence.push(trim(filters[filter]));
+        while (definedFilters--) {
+            this.sequence.push(trim(filters[definedFilters]));
         }
 
         return phrase;
@@ -79,79 +102,32 @@
         return phrase;
     };
 
-    Wordsmith.prototype.extend = function(phrases, prefix) {
-
-        var item, phrase;
-
-        for (item in phrases) {
-
-            phrase = phrases[item];
-
-            if (prefix !== void 0) {
-                item = prefix + this.attributes.notation + item;
-            }
-
-            if (phrase instanceof Object) {
-                this.extend(phrase, item);
-                continue;
-            }
-
-            this.phrases[item] = phrase;
-        }
-
+    Wordsmith.prototype.restore = function() {
+        this.constructor.call(this);
         return this;
     };
 
     wordsmith = new Wordsmith();
 
-    root.wordsmith = root.ws = ws = function(phrase, expressions) {
-        phrase = wordsmith.parse(phrase);
+    root.wordsmith = root.ws = ws = function(phrase, filters, expressions) {
+
+        if (filters && !(filters.sort instanceof Function)) {
+            expressions = filters;
+            filters = [];
+        }
+
+        phrase = wordsmith.parse(phrase, filters);
+
         return wordsmith.process(phrase, expressions) || (ws.get('throwError') ? ws.get('deafultText') + phrase : '');
     };
 
-    ws.extend = function(phrase, value) {
-
-        var phrases = {};
-
-        if (phrase && phrase.constructor === String) {
-            phrases[phrase] = value;
-        } else {
-            phrases = phrase || phrases;
-        }
-
-        wordsmith.extend(phrases);
-
-        return this;
-    };
-
-    ws.set = function(attribute, value) {
-
-        var attributes = {};
-
-        if (attribute && attribute.constructor === String) {
-            attributes[attribute] = value;
-        } else {
-            attributes = attribute || attributes;
-        }
-
-        wordsmith.set(attributes);
-
+    ws.extend = function() {
+        wordsmith.extend(reformat.apply(this, arguments));
         return this;
     };
 
     ws.get = function(property) {
         return wordsmith.attributes[property];
-    };
-
-    ws.replace = function(phrases) {
-        wordsmith.phrases = phrases || {};
-        return this;
-    };
-
-    ws.restore = function() {
-        wordsmith.restore();
-        this.set(DEFAULTS);
-        return this;
     };
 
     ws.registerFilter = function(property, filter) {
@@ -163,6 +139,29 @@
 
         for (filter in property) {
             wordsmith.filters[filter] = property[filter];
+        }
+
+        return this;
+    };
+
+    ws.empty = function(phrases) {
+        wordsmith.phrases = phrases || {};
+        return this;
+    };
+
+    ws.restore = function() {
+        wordsmith.restore();
+        this.set(DEFAULTS);
+        return this;
+    };
+
+    ws.set = function() {
+
+        var attributes = reformat.apply(this, arguments),
+            property;
+
+        for (property in attributes) {
+            wordsmith.attributes[property] = attributes[property];
         }
 
         return this;

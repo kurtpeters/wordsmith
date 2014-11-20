@@ -42,19 +42,6 @@ describe('wordsmith', function() {
         expect(ws.get('apple')).to.equal(true);
     });
 
-    // it('should restore to original library defaults', function() {
-
-    //     ws.extend('test', 'this is a test');
-    //     expect(ws('test')).to.equal('this is a test');
-
-    //     ws.set('apple', true);
-    //     expect(ws.get('apple')).to.equal(true);
-
-    //     ws.restore();
-    //     expect(ws('test')).to.equal('Missing phrase: test');
-    //     expect(ws.get('apple')).to.equal(void 0);
-    // });
-
     it('should retrieve internal phrase lookup', function() {
         ws.extend('test', 'this is a test');
         expect(ws('test')).to.equal('this is a test');
@@ -86,19 +73,21 @@ describe('wordsmith', function() {
 
     it('should apply requested filters to phrase', function() {
         ws.extend('content', 'content phrase');
-        ws.registerFilter({
-            "test1": function(phrase) {
-                return 'test: ' + phrase;
-            },
-            "test2": function(phrase) {
-                return phrase.replace(/\s+/g, '');
-            }
-        });
         expect(ws('content | test1 | test2')).to.equal('test:contentphrase');
+        expect(ws('content | test1', ['test2'])).to.equal('test:contentphrase');
+        expect(ws('content', ['test1', 'test2'])).to.equal('test:contentphrase');
+    });
+
+    it('should apply default filters from attribute settings', function() {
+        ws.set('filters', ['test1']);
+        ws.extend('content', 'content phrase');
+        expect(ws('content')).to.equal('test: content phrase');
+        expect(ws('content | test2')).to.equal('test:contentphrase');
+        ws.set('filters', []);
     });
 
     afterEach(function() {
-        ws.replace();
+        ws.empty();
     });
 
 });
@@ -124,7 +113,7 @@ describe('filter:expression', function() {
     });
 
     afterEach(function() {
-        ws.replace();
+        ws.empty();
     });
 
 });
@@ -146,7 +135,7 @@ describe('filter:pluralization', function() {
     });
 
     afterEach(function() {
-        ws.replace();
+        ws.empty();
     });
 });
 
@@ -166,6 +155,25 @@ describe('filter:nested', function() {
     });
 
     afterEach(function() {
-        ws.replace();
+        ws.empty();
     });
+});
+
+describe('wordsmith:restore', function() {
+
+    'use strict';
+
+    it('should restore to original library defaults', function() {
+
+        ws.extend('test', 'this is a test');
+        expect(ws('test')).to.equal('this is a test');
+
+        ws.set('apple', true);
+        expect(ws.get('apple')).to.equal(true);
+
+        ws.restore();
+        expect(ws('test')).to.equal('Missing phrase: test');
+        expect(ws.get('apple')).to.equal(void 0);
+    });
+
 });
