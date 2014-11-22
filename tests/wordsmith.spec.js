@@ -145,13 +145,22 @@ describe('filter:nested', function() {
 
     beforeEach(function() {
         ws.extend({
-            "book": "goosebumps",
-            "gerd": "oh mer gerd ws(book)!"
+            "book": "goosebump || goosebumps",
+            "gerd": "oh mer gerd ws(book, [pluralize])!",
+            "reverse": '%{n} number',
+            "nested": "number %{number}, ws(reverse, [expression], {n: number})",
+            "nestedWithoutArray": "number %{number}, ws(reverse | expression, {n: number})"
         });
     });
 
     it('should perform nested phrase lookups', function() {
         expect(ws('gerd | nested')).to.equal('oh mer gerd goosebumps!');
+    });
+
+    it('should reassign nested arguments', function() {
+        expect(ws('gerd', ['nested'], 1)).to.equal('oh mer gerd goosebump!');
+        expect(ws('nested', ['expression', 'nested'], {"number": 1})).to.equal('number 1, 1 number');
+        expect(ws('nestedWithoutArray', ['expression', 'nested'], {"number": 1})).to.equal('number 1, 1 number');
     });
 
     afterEach(function() {

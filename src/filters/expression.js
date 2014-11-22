@@ -7,10 +7,17 @@
     ws.set('expression', /%\{(.*?)\}/g);
 
     ws.registerFilter('expression', function(phrase, expressions) {
+
         var regExp = ws.get('expression');
-        return phrase.replace(regExp, function(expression, property) {
-            return expressions[property] || '';
-        });
+
+        if (regExp.test(phrase)) {
+
+            return phrase.replace(regExp, function(expression, property) {
+                return expressions[property] || '';
+            });
+        }
+
+        return phrase;
     });
 
 })(this);

@@ -75,6 +75,7 @@
     };
 
     Wordsmith.prototype.process = function(phrase, expressions) {
+
         var index = this.sequence.length,
             filter;
 
@@ -167,6 +168,6 @@
         return this;
     };
 
-    ws.restore();
+    return ws.restore();
 
 })(this);
