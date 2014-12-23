@@ -5,7 +5,7 @@
     var wordsmith, ws, DEFAULTS = {
         "deafultText": 'Missing phrase: ',
         "filter": '|',
-        "filters": [],
+        "defaultFilters": [],
         "locale": 'en',
         "notation": '.',
         "throwError": true
@@ -64,7 +64,7 @@
         var filters = phrase.split(this.attributes.filter);
 
         phrase = trim(filters[0]);
-        filters = this.attributes.filters.concat(filters.slice(1), definedFilters || []);
+        filters = this.attributes.defaultFilters.concat(filters.slice(1), definedFilters || []);
         definedFilters = filters.length;
 
         while (definedFilters--) {
@@ -128,6 +128,11 @@
     };
 
     ws.get = function(property) {
+
+        if (property === void 0) {
+            return wordsmith.attributes;
+        }
+
         return wordsmith.attributes[property];
     };
 
@@ -166,6 +171,10 @@
         }
 
         return this;
+    };
+
+    ws.utils = {
+        "trim": trim
     };
 
     return ws.restore();
@@ -303,32 +312,56 @@
         }
     }
 
-    ws.set({
-        "delimiter": '||'
-    });
+    function filterPhrase(phrase, expressions) {
 
-    ws.registerFilter('pluralize', function(phrase, expressions) {
+        var expression, rule, property;
 
-        var delimiter = ws.get('delimiter'),
-            property, rule;
+        phrase = phrase.split(',');
 
-        if (~phrase.indexOf(delimiter)) {
-            phrase = phrase.split(delimiter);
-            if (!isNaN(expressions)) {
-                rule = +expressions;
+        expression = ws.utils.trim(phrase[1] || '');
+        phrase = phrase[0].split('||');
+
+        if (!isNaN(expressions)) {
+
+            rule = +expressions;
+
+        } else {
+
+            if (expression && expressions[expression]) {
+
+                rule = +expressions[expression];
+
             } else {
+
                 for (property in expressions) {
+
                     if (!isNaN(expressions[property])) {
                         rule = +expressions[property];
                         break;
                     }
                 }
             }
-
-            phrase = phrase[pluralizationRule(rule || 0)];
         }
 
-        return phrase;
+        return phrase[pluralizationRule(rule || 0)];
+    }
+
+    ws.set({
+        "pluralize": /p\((.*?)\)/g
+    });
+
+    ws.registerFilter('pluralize', function(phrase, expressions) {
+
+        var delimiter = ws.get('pluralize');
+
+        if (!delimiter.test(phrase)) {
+            return phrase;
+        }
+
+        return phrase.replace(delimiter, function(exp, match) {
+            return filterPhrase(match, expressions);
+        });
+
     });
 
 })(this);

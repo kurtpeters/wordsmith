@@ -79,11 +79,11 @@ describe('wordsmith', function() {
     });
 
     it('should apply default filters from attribute settings', function() {
-        ws.set('filters', ['test1']);
+        ws.set('defaultFilters', ['test1']);
         ws.extend('content', 'content phrase');
         expect(ws('content')).to.equal('test: content phrase');
         expect(ws('content | test2')).to.equal('test:contentphrase');
-        ws.set('filters', []);
+        ws.set('defaultFilters', []);
     });
 
     afterEach(function() {
@@ -124,7 +124,7 @@ describe('filter:pluralization', function() {
 
     beforeEach(function() {
         ws.extend({
-            "apple": "apple || apples"
+            "apple": "p(apple || apples, n)"
         });
     });
 
@@ -145,7 +145,7 @@ describe('filter:nested', function() {
 
     beforeEach(function() {
         ws.extend({
-            "book": "goosebump || goosebumps",
+            "book": "p(goosebump || goosebumps, n)",
             "gerd": "oh mer gerd ws(book, [pluralize])!",
             "reverse": '%{n} number',
             "nested": "number %{number}, ws(reverse, [expression], {n: number})",
@@ -159,6 +159,9 @@ describe('filter:nested', function() {
 
     it('should reassign nested arguments', function() {
         expect(ws('gerd', ['nested'], 1)).to.equal('oh mer gerd goosebump!');
+        expect(ws('gerd', ['nested'], {"number": 0})).to.equal('oh mer gerd goosebumps!');
+        expect(ws('gerd', ['nested'], {"n": 1})).to.equal('oh mer gerd goosebump!');
+        expect(ws('gerd', ['nested'], {"number": 0, "n": 1})).to.equal('oh mer gerd goosebump!');
         expect(ws('nested', ['expression', 'nested'], {"number": 1})).to.equal('number 1, 1 number');
         expect(ws('nestedWithoutArray', ['expression', 'nested'], {"number": 1})).to.equal('number 1, 1 number');
     });

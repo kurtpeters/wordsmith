@@ -5,7 +5,7 @@
     var wordsmith, ws, DEFAULTS = {
         "deafultText": 'Missing phrase: ',
         "filter": '|',
-        "filters": [],
+        "defaultFilters": [],
         "locale": 'en',
         "notation": '.',
         "throwError": true
@@ -64,7 +64,7 @@
         var filters = phrase.split(this.attributes.filter);
 
         phrase = trim(filters[0]);
-        filters = this.attributes.filters.concat(filters.slice(1), definedFilters || []);
+        filters = this.attributes.defaultFilters.concat(filters.slice(1), definedFilters || []);
         definedFilters = filters.length;
 
         while (definedFilters--) {
@@ -128,6 +128,11 @@
     };
 
     ws.get = function(property) {
+
+        if (property === void 0) {
+            return wordsmith.attributes;
+        }
+
         return wordsmith.attributes[property];
     };
 
@@ -166,6 +171,10 @@
         }
 
         return this;
+    };
+
+    ws.utils = {
+        "trim": trim
     };
 
     return ws.restore();
