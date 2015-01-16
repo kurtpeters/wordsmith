@@ -8,7 +8,7 @@ bower install wordsmith
 ```
 ===
 
-###Why wordsmith
+###Why wordsmith?
 
 Standardization is one of the hardest principles to define amongst a team of developers. Too many cooks is the epitome of large team collaboration, especially when dealing with global dependencies. WordSmith is designed to help consolidate standards by centralizing string utility methods and application phrases, not to mention it’s i18n compliant.
 
